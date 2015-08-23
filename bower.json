@@ -1,0 +1,30 @@
+{
+  "name": "blog",
+  "version": "0.0.0",
+  "description": "my personal blog project",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "blog",
+    "angular"
+  ],
+  "authors": [
+    "Leo"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "angular": "~1.4.4",
+    "angular-route": "~1.4.4",
+    "angular-marked": "~0.0.21",
+    "angular-file-upload": "~2.1.1"
+  }
+}
