@@ -1,4 +1,4 @@
-var promise = require('promise');
+var Promise = require('promise');
 var path = require('path');
 var fs = require('fs');
 
@@ -14,6 +14,9 @@ var posts = [
 			contentType: "markdown"
 		}
 	];
+
+posts = fs.readFileSync(path.join(__dirname, 'data', 'meta.json'), 'utf-8');
+posts = JSON.parse(posts);
 
 var getPost = function(id) {
 	for (var i = posts.length - 1; i >= 0; i--) {
@@ -36,7 +39,7 @@ exports.get = function(id) {
 		if(post.content)
 			resolve(post);
 		else {
-			var target_dir = path.join(__dirname, 'uploads', post.title);
+			var target_dir = path.join(__dirname, 'data', post.title);
 			fs.readFile(target_dir, 'utf8', function (err,data) {
 		  		if (err) {
 		    		reject(err);
@@ -63,7 +66,7 @@ exports.save = function(file) {
 	posts.push(post);
 	var promise = new Promise(function (resolve, reject) {
 		var tmp_path = file.path;
-		var target_dir = path.join(__dirname, 'uploads');
+		var target_dir = path.join(__dirname, 'data');
 		try {
 		    fs.mkdirSync(target_dir);
 		 } catch(e) {
