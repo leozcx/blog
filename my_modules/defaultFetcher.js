@@ -1,7 +1,7 @@
 var Promise = require('promise');
 var path = require('path');
 var fs = require('fs');
-
+var abs = require('./abstractGenerator');
 var posts = [
 		{
 			id: "1",
@@ -44,6 +44,7 @@ exports.get = function(id) {
 		  		if (err) {
 		    		reject(err);
 		  		}
+          post['abstract'] = abs.generate(data);
 		  		post.content =data;
 		  		resolve(post);
 			});	

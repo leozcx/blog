@@ -19,6 +19,9 @@ router.get("/:id", function(req, res) {
 });
 
 router.post("/", upload.single("file"), function(req, res) {
+  //generate id
+  //compose post object
+  //save file
 	fetcher.save(req.file).then(function(ret) {
 		res.json(ret);
 	}, function(err) {
