@@ -1,4 +1,4 @@
-var blogApp = angular.module("blogApp", ["ngRoute", "hc.marked", "angularFileUpload"]);
+var blogApp = angular.module("blogApp", ["ngRoute", "hc.marked", "angularFileUpload", "xeditable"]);
 
 blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$location', function($scope, $route, $routeParams, $location) {
 	$scope.$route = $route;

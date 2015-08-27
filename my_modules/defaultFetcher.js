@@ -2,6 +2,7 @@ var Promise = require('promise');
 var path = require('path');
 var fs = require('fs');
 var abs = require('./abstractGenerator');
+var metaFile = path.join(__dirname, 'data', 'meta.json');
 var posts = [
 		{
 			id: "1",
@@ -54,17 +55,7 @@ exports.get = function(id) {
 	
 }
 
-exports.save = function(file) {
-	var post = {
-			id: file.filename,
-			title: file.originalname,
-			author: "admin",
-			createdOn: new Date().getTime(),
-			updatedOn: new Date().getTime(),
-			abstract: "#abstract",
-			contentType: "markdown"
-		};
-	posts.push(post);
+var save = function(post, file) {
 	var promise = new Promise(function (resolve, reject) {
 		var tmp_path = file.path;
 		var target_dir = path.join(__dirname, 'data');
@@ -77,9 +68,24 @@ exports.save = function(file) {
 		    var src = fs.createReadStream(tmp_path);
 		  	var dest = fs.createWriteStream(target_path);
 		  	src.pipe(dest);
-		  	src.on('end', function() { resolve({}); });
+		  	src.on('data', function(chunk) {
+		  		post['abstract'] = abs.generate(chunk.toString('utf8'));
+		  		console.log('got %d bytes of data', chunk.length);
+		  	});
+		  	src.on('end', function() { 
+		  		posts.push(post);
+		  		var str = JSON.stringify(posts, null, 2);
+		  	    fs.writeFile(metaFile, str, function(err) {
+		  	      if(err)
+		  	        reject(err);
+		  	      else
+		  	        resolve(post);
+		  	    });
+		  	  });
 		  	src.on('error', function(err) { reject(err); });
 	});
 	
 	return promise;
 }
+
+exports.save = save;
