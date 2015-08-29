@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var fetcher = require('../my_modules/defaultFetcher')
+var fetcher = require('../my_modules/defaultFetcher');
 var multer  = require('multer');
 var path = require('path');
 var upload = multer({ dest: path.join(__dirname, 'articles')});
@@ -20,11 +20,19 @@ router.get("/:id", function(req, res) {
 	
 });
 
+router.delete("/:id", function(req, res) {
+	fetcher.deletePost(req.params.id).then(function(ret) {
+		res.json({id: ret});
+	}, function(err) {
+		res.status(500).send(err);
+	});
+});
+
 router.post("/", upload.single("file"), function(req, res) {
   //generate id
-	var post = {};
+	var post = req.body;
 	post.id = uuid.v4();
-	post.title = req.file.originalname;
+	post.title = post.title || req.file.originalname;
 	post.author = "admin";
 	post.createdOn = new Date().getTime();
 	post.updatedOn = new Date().getTime();

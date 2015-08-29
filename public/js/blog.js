@@ -6,16 +6,28 @@ blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$loca
     $scope.$routeParams = $routeParams;
 }]);
 
-blogApp.controller("PostsController", ["$scope", "$http", function($scope, $http) {
-	$scope.posts = [
-		{
-			title: "Title",
-			author: "admin",
-			createdOn: 1288323623006,
-			updatedOn: 1288323623006,
-			abstract: "abstract"
+blogApp.controller("PostsController", ["$scope", "$http", "util", function($scope, $http, util) {
+	$scope.posts = [];
+	
+	$scope.editable = true;
+	
+	$scope.enableEdit = function(post) {
+		post.editable = $scope.editable && true;
+	};
+	
+	$scope.disableEdit = function(post) {
+		post.editable = false;
+	};
+
+	$scope.onDelete = function(post) {
+		if($scope.editable) {
+			$http.delete("/posts/" + post.id).then(function(res) {
+				util.deleteFromArray($scope.posts, post);
+			}, function(error) {
+				console.error(error);
+			});
 		}
-	];
+	}; 
 
 	$http.get("/posts").then(function(res) {
 		$scope.posts = res.data;
@@ -33,10 +45,20 @@ blogApp.controller("PostController", ["$scope", "$http", "$routeParams", functio
 	});
 }]);
 
-blogApp.controller("NewPostController", ["$scope", "FileUploader", function($scope, FileUploader) {
+blogApp.controller("NewPostController", ["$scope", "$http", "FileUploader", function($scope, $http, FileUploader) {
 	$scope.uploader = new FileUploader({
 		url: "posts"
 	});
+	
+	$scope.post = {};
+	
+	$scope.submit = function() {
+		if($scope.uploader.queue.length > 0) {
+			var item = $scope.uploader.queue[0];
+			item.formData.push($scope.post);
+			item.upload();
+		};
+	};
 }]);
 
 blogApp.config(['$routeProvider', 'markedProvider', function($routeProvider, markedProvider) {
@@ -57,4 +79,14 @@ blogApp.config(['$routeProvider', 'markedProvider', function($routeProvider, mar
       redirectTo: '/posts'
     });
    markedProvider.setOptions({gfm: true});
+}]);
+
+blogApp.factory('util', [function() {
+	var obj = {};
+	obj.deleteFromArray = function(array, item) {
+		var index = array.indexOf(item);
+  		array.splice(index, 1); 
+  		return array;
+	};
+	return obj;
 }]);

@@ -1,23 +1,28 @@
 <!-- First Blog Post -->
-                <div ng-repeat="post in posts">
-                    <h2>
-                        <a href="#">{{post.title}}</a>
-                    </h2>
-                    <p><span class="glyphicon glyphicon-time"></span> Posted on {{post.createdOn | date:'yyyy-MM-dd HH:mm:ss'}}</p>
-                    <hr>
-                    <div marked="post.abstract">
-                    </div>
-                    
-                    <a class="btn btn-primary" href="#post/{{post.id}}">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
+<div ng-repeat="post in posts" ng-mouseover="enableEdit(post)" ng-mouseleave="disableEdit(post)">
+	<h2><a href="#">{{post.title}}</a></h2>
+	<div class="row">
+		<p class="col-md-11">
+			<span class="glyphicon glyphicon-time"></span> Posted on {{post.createdOn | date:'yyyy-MM-dd HH:mm:ss'}}
+		</p>
+		<div class="col-md-1">
+			<span class="glyphicon glyphicon-edit" ng-show="post.editable" title="Edit"></span>
+			<span class="glyphicon glyphicon-trash" ng-show="post.editable" ng-click="onDelete(post)"></span>
+		</div>
+	</div>
+	<hr>
+	<div marked="post.abstract"></div>
 
-                    <hr>
-                </div>
-                <!-- Pager -->
-                <ul class="pager">
-                    <li class="previous">
-                        <a href="#">&larr; Older</a>
-                    </li>
-                    <li class="next">
-                        <a href="#">Newer &rarr;</a>
-                    </li>
-                </ul>
+	<a class="btn btn-primary" href="#post/{{post.id}}">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
+
+	<hr>
+</div>
+<!-- Pager -->
+<ul class="pager">
+	<li class="previous">
+		<a href="#">&larr; Older</a>
+	</li>
+	<li class="next">
+		<a href="#">Newer &rarr;</a>
+	</li>
+</ul>

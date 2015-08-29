@@ -2,3 +2,5 @@
 node_modules
 bower_components
 articles
+my_modules/data
+my_modules/uploads
