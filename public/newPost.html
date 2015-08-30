@@ -37,7 +37,6 @@
 										<th width="50%">Name</th>
 										<th ng-show="uploader.isHTML5">Size</th>
 										<th ng-show="uploader.isHTML5">Progress</th>
-										<th>Status</th>
 										<th>Actions</th>
 									</tr>
 								</thead>
@@ -49,6 +48,10 @@
 										<div class="progress" style="margin-bottom: 0;">
 											<div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
 										</div></td>
+										<td nowrap>
+										<button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+											<span class="glyphicon glyphicon-trash"></span> Remove
+										</button></td>
 									</tr>
 								</tbody>
 							</table>

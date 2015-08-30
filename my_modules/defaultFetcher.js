@@ -24,36 +24,55 @@ var getPost = function(id) {
 	};
 };
 
-var save = function(post, file) {
+var save = function(post, file, update) {
 	var promise = new Promise(function(resolve, reject) {
-		var tmp_path = file.path;
-		var target_dir = path.join(__dirname, 'data');
-		try {
-			fs.mkdirSync(target_dir);
-		} catch(e) {
-			if (e.code != 'EEXIST')
-				throw e;
+		if (update) {
+			//remove the existing one if there is
+			for (var i = 0; i < posts.length; i++) {
+				var p = posts[i];
+				if (post.id == p.id) {
+					posts.splice(i, 1);
+					break;
+				}
+			}
 		}
-		post.fileName = file.originalname;
-		var target_path = path.join(target_dir, file.originalname);
-		var src = fs.createReadStream(tmp_path);
-		var dest = fs.createWriteStream(target_path);
-		src.pipe(dest);
-		src.on('data', function(chunk) {
-			post['abstract'] = abs.generate(chunk.toString('utf8'));
-			console.log('got %d bytes of data', chunk.length);
-		});
-		src.on('end', function() {
+		if (file) {
+			var tmp_path = file.path;
+			var target_dir = path.join(__dirname, 'data');
+			try {
+				fs.mkdirSync(target_dir);
+			} catch(e) {
+				if (e.code != 'EEXIST')
+					throw e;
+			}
+			post.fileName = file.originalname;
+			var target_path = path.join(target_dir, file.originalname);
+			var src = fs.createReadStream(tmp_path);
+			var dest = fs.createWriteStream(target_path);
+			src.pipe(dest);
+			src.on('data', function(chunk) {
+				post['abstract'] = abs.generate(chunk.toString('utf8'));
+				console.log('got %d bytes of data', chunk.length);
+			});
+			src.on('end', function() {
+				posts.push(post);
+				saveMetadata(posts).then(function() {
+					resolve(post);
+				}, function(err) {
+					reject(err);
+				});
+			});
+			src.on('error', function(err) {
+				reject(err);
+			});
+		} else {
 			posts.push(post);
 			saveMetadata(posts).then(function() {
 				resolve(post);
 			}, function(err) {
 				reject(err);
 			});
-		});
-		src.on('error', function(err) {
-			reject(err);
-		});
+		}
 	});
 
 	return promise;
@@ -73,12 +92,12 @@ var saveMetadata = function(posts) {
 };
 
 var deletePost = function(id) {
-	for(var i=0; i < posts.length; i++) {
+	for (var i = 0; i < posts.length; i++) {
 		var post = posts[i];
-		if(post.id == id) {
+		if (post.id == id) {
 			posts.splice(i, 1);
 			break;
-		} 
+		}
 	}
 	return new Promise(function(resolve, reject) {
 		saveMetadata(posts).then(function() {
@@ -116,5 +135,7 @@ exports.get = function(id) {
 
 };
 
-exports.save = save;
+exports.save = function(post, file, update){
+	return save(post, file, update);
+};
 exports.deletePost = deletePost;

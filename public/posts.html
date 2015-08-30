@@ -1,12 +1,12 @@
 <!-- First Blog Post -->
 <div ng-repeat="post in posts" ng-mouseover="enableEdit(post)" ng-mouseleave="disableEdit(post)">
-	<h2><a href="#">{{post.title}}</a></h2>
+	<h2><a href="#post/{{post.id}}">{{post.title}}</a></h2>
 	<div class="row">
 		<p class="col-md-11">
 			<span class="glyphicon glyphicon-time"></span> Posted on {{post.createdOn | date:'yyyy-MM-dd HH:mm:ss'}}
 		</p>
 		<div class="col-md-1">
-			<span class="glyphicon glyphicon-edit" ng-show="post.editable" title="Edit"></span>
+			<span class="glyphicon glyphicon-edit" ng-show="post.editable" title="Edit" ng-click="onEdit(post, 'edit')"></span>
 			<span class="glyphicon glyphicon-trash" ng-show="post.editable" ng-click="onDelete(post)"></span>
 		</div>
 	</div>
