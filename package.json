@@ -15,6 +15,9 @@
     "multer": "^1.0.3",
     "promise": "^7.0.4",
     "serve-favicon": "~2.3.0",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "passport": "^0.3.0",
+    "passport-local": "^1.0.0",
+    "express-session": "^1.11.3"
   }
 }
