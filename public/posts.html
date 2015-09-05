@@ -3,11 +3,13 @@
 	<h2><a href="#post/{{post.id}}">{{post.title}}</a></h2>
 	<div class="row">
 		<p class="col-md-11">
-			<span class="glyphicon glyphicon-time"></span> Posted on {{post.createdOn | date:'yyyy-MM-dd HH:mm:ss'}}
+			<span class="glyphicon glyphicon-time"></span> Posted on {{post.createdOn | date:'yyyy-MM-dd HH:mm'}} 
+			<span class="glyphicon glyphicon-tag tag"></span>
+			<span ng-repeat="tag in post.tag"><a href="#posts?tag={{tag.trim()}}">{{tag.trim()}}</a><span ng-if="!$last">, </span></span>
 		</p>
 		<div class="col-md-1">
-			<span class="glyphicon glyphicon-edit" ng-show="post.editable" title="Edit" ng-click="onEdit(post, 'edit')"></span>
-			<span class="glyphicon glyphicon-trash" ng-show="post.editable" ng-click="onDelete(post)"></span>
+			<a class="glyphicon glyphicon-edit" href="" ng-show="post.editable" title="Edit" ng-click="onEdit(post, 'edit')"></a>
+			<a class="glyphicon glyphicon-trash" href="" ng-show="post.editable" title="Delete" ng-click="onDelete(post)"></a>
 		</div>
 	</div>
 	<hr>

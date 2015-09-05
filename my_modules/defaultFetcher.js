@@ -14,6 +14,7 @@ var posts = [{
 	contentType : "markdown"
 }];
 
+console.log("defaultFetacher")
 posts = fs.readFileSync(path.join(__dirname, 'data', 'meta.json'), 'utf-8');
 posts = JSON.parse(posts);
 

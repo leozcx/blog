@@ -1,17 +1,22 @@
 var blogApp = angular.module("blogApp", ["ngRoute", "hc.marked", "angularFileUpload", "xeditable"]);
 
-blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$location',
-function($scope, $route, $routeParams, $location) {
+blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$location', "$window", "userService",
+function($scope, $route, $routeParams, $location, $window, userService) {
 	$scope.$route = $route;
 	$scope.$location = $location;
 	$scope.$routeParams = $routeParams;
+
+	$scope.userService = userService;
+
+	$scope.load = function(path) {
+		$window.location.href = path;
+	};
 }]);
 
-blogApp.controller("PostsController", ["$scope", "$http", "$location", "util", "shareDataService",
-function($scope, $http, $location, util, shareDataService) {
-	$scope.posts = [];
-
-	$scope.editable = true;
+blogApp.controller("PostsController", ["$scope", "$rootScope", "$http", "$location", "$routeParams", "util", "shareDataService", "userService",
+function($scope, $rootScope, $http, $location, $routeParams, util, shareDataService, userService) {
+	$scope.posts = $rootScope.$root.allPosts;
+	$scope.editable = userService.isLoggedIn;
 
 	$scope.enableEdit = function(post) {
 		post.editable = $scope.editable && true;
@@ -36,11 +41,31 @@ function($scope, $http, $location, util, shareDataService) {
 		$location.path(newPath);
 	};
 
-	$http.get("/posts").then(function(res) {
-		$scope.posts = res.data;
-	}, function(error) {
-		console.err(error);
-	});
+	var filter = function(allPosts, tag) {
+		var posts = [];
+		for (var j = 0; j < allPosts.length; j++) {
+			var post = allPosts[j];
+			if (post.tag && post.tag.indexOf(tag) >= 0) {
+				posts.push(post);
+			}
+		}
+		return posts;
+	};
+
+	if (!$rootScope.$root.allPosts || $rootScope.$root.allPosts.length == 0) {
+		$http.get("/posts").then(function(res) {
+			$scope.posts = $rootScope.$root.allPosts = res.data;
+			if ($routeParams.tag) {
+				$scope.posts = filter($scope.allPosts, $routeParams.tag);
+			}
+		}, function(error) {
+			console.err(error);
+		});
+	} else {
+		if ($routeParams.tag) {
+			$scope.posts = filter($scope.allPosts, $routeParams.tag);
+		}
+	}
 }]);
 
 blogApp.controller("PostController", ["$scope", "$http", "$routeParams",
@@ -96,6 +121,48 @@ function($scope, $http, FileUploader, util) {
 	};
 }]);
 
+blogApp.controller('LoginController', ["$scope", "$http", "$location", "userService",
+function($scope, $http, $location, userService) {
+	$scope.login = function(newPath) {
+		$http.post('/login', {
+			username : "admin",
+			password : "pass"
+		}).then(function(data) {
+			userService.isLoggedIn = true;
+			userService.user = data.data.username;
+			$location.path(newPath);
+		}, function(err) {
+			console.log(err);
+		});
+	};
+}]);
+
+blogApp.controller('TagController', ["$scope", "$rootScope", "$http", "shareDataService",
+function($scope, $rootScope, $http, shareDataService) {
+	$scope.leftHalf = [];
+	$scope.rightHalf = [];
+
+	$scope.showPosts = function(tagName) {
+		$rootScope.$broadcast('tagSelected', $scope.tags[tagName].posts);
+	};
+
+	$http.get('/posts/tags').then(function(res) {
+		var data = $scope.tags = res.data;
+		var index = 0;
+		for (var tagName in data) {
+			var tag = data[tagName];
+			tag.name = tagName;
+			if (index % 2 == 0)
+				$scope.leftHalf.push(tag);
+			else
+				$scope.rightHalf.push(tag);
+			index++;
+		}
+	}, function(err) {
+		console.log(err);
+	});
+}]);
+
 blogApp.config(['$routeProvider', 'markedProvider',
 function($routeProvider, markedProvider) {
 	$routeProvider.when('/posts', {
@@ -110,6 +177,11 @@ function($routeProvider, markedProvider) {
 	}).when('/edit', {
 		templateUrl : 'newPost.html',
 		controller : 'EditPostController'
+	}).when('/login', {
+		templateUrl : 'login.html',
+		controller : 'LoginController'
+	}).when('/about', {
+		templateUrl: 'about.html'
 	}).otherwise({
 		redirectTo : '/posts'
 	});
@@ -158,3 +230,12 @@ blogApp.factory('shareDataService', function() {
 	};
 
 });
+
+blogApp.factory('userService', [
+function() {
+	var sdo = {
+		isLoggedIn : false,
+		user : "temp"
+	};
+	return sdo;
+}]);

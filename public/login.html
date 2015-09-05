@@ -1,4 +1,4 @@
-<form action="/login" method="post">
+<form>
 	<div>
 	<label>Username:</label>
 	<input type="text" name="username"/><br/>
@@ -8,6 +8,6 @@
 	<input type="password" name="password"/>
 	</div>
 	<div>
-	<input type="submit" value="Submit"/>
+	<button type="button" class="btn" ng-click='login("#posts")'>Login</button>
 	</div>
 </form>

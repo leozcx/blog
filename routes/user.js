@@ -1,8 +1,22 @@
+var express = require('express');
+var passport = require('passport');
+var router = express.Router();
 
-/*
- * GET users listing.
- */
+router.post('/login', passport.authenticate('local'), function(req, res, next) {
+	req.session.save(function(err) {
+		if(err)
+			return next(err);
+		res.redirect('/');
+	});
+});
 
-exports.list = function(req, res){
-  res.send("respond with a resource");
-};
+router.get('/logout', function(req, res, next) {
+	req.logout();
+	req.session.save(function(err) {
+		if(err)
+			return next(err);
+		res.redirect('/');
+	});
+});
+
+module.exports = router;

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var fetcher = require('../my_modules/defaultFetcher');
+var loggedService = require('../my_modules/loggedService');
 var multer = require('multer');
 var path = require('path');
 var upload = multer({
@@ -8,9 +9,18 @@ var upload = multer({
 });
 var uuid = require('uuid');
 var abs = require('../my_modules/abstractGenerator');
+var tagService = require('../my_modules/tagService');
 
 router.get("/", function(req, res) {
 	res.json(fetcher.getPosts());
+});
+
+router.get("/tags", function(req, res) {
+	tagService.getTags(fetcher.getPosts()).then(function(ret) {
+		res.json(ret);
+	}, function(err) {
+		res.status(500).send(err);
+	});
 });
 
 router.get("/:id", function(req, res) {
@@ -22,7 +32,7 @@ router.get("/:id", function(req, res) {
 
 });
 
-router.put("/:id", function(req, res) {
+router.put("/:id", loggedService.ensureLoggedIn(), function(req, res) {
 	var post = req.body;
 	fetcher.save(post, req.file, true).then(function(ret) {
 		res.json(ret);
@@ -31,7 +41,7 @@ router.put("/:id", function(req, res) {
 	});
 });
 
-router.delete("/:id", function(req, res) {
+router.delete("/:id", loggedService.ensureLoggedIn(), function(req, res) {
 	fetcher.deletePost(req.params.id).then(function(ret) {
 		res.json({
 			id : ret
@@ -41,12 +51,11 @@ router.delete("/:id", function(req, res) {
 	});
 });
 
-router.post("/", upload.single("file"), function(req, res) {
+router.post("/", loggedService.ensureLoggedIn(), upload.single("file"), function(req, res) {
+	loggedService.ensureLoggedIn();
 	//generate id
 	var post = req.body;
-	console.log(post)
 	var update = post.id ? true : false;
-	console.log(update)
 	if (!update) {
 		post.id = uuid.v4();
 		post.title = post.title || req.file.originalname;
@@ -54,6 +63,12 @@ router.post("/", upload.single("file"), function(req, res) {
 		post.createdOn = new Date().getTime();
 		post.updatedOn = new Date().getTime();
 		post.contentType = "markdown";
+	}
+	if(post.tag) {
+		post.tag = post.tag.split(",");
+		for(var i = 0; i < post.tag.length; i++) {
+			post.tag[i] = post.tag[i].trim();
+		}
 	}
 	//save file
 	fetcher.save(post, req.file, update).then(function(ret) {

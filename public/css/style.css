@@ -12,6 +12,6 @@ footer {
     margin: 50px 0;
 }
 
-.glyphicon {
-	cursor: pointer;
+.tag {
+	padding-left: 1em;
 }
