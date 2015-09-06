@@ -125,8 +125,8 @@ blogApp.controller('LoginController', ["$scope", "$http", "$location", "userServ
 function($scope, $http, $location, userService) {
 	$scope.login = function(newPath) {
 		$http.post('/login', {
-			username : "admin",
-			password : "pass"
+			username : $scope.username,
+			password : $scope.password
 		}).then(function(data) {
 			userService.isLoggedIn = true;
 			userService.user = data.data.username;
