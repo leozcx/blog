@@ -2,6 +2,7 @@ var Promise = require('promise');
 var path = require('path');
 var fs = require('fs');
 var abs = require('./abstractGenerator');
+var tagService = require('./tagService');
 var metaFile = path.join(__dirname, 'data', 'meta.json');
 var postsDir = path.join(__dirname, 'uploads');
 var posts = [];
@@ -25,6 +26,7 @@ var save = function(post, file, update) {
 				var p = posts[i];
 				if (post.id == p.id) {
 					posts.splice(i, 1);
+					tagService.onPostDelete(p);
 					break;
 				}
 			}
@@ -50,6 +52,7 @@ var save = function(post, file, update) {
 			src.on('end', function() {
 				posts.push(post);
 				saveMetadata(posts).then(function() {
+					tagService.onPostAdd(post);
 					resolve(post);
 				}, function(err) {
 					reject(err);
@@ -61,6 +64,7 @@ var save = function(post, file, update) {
 		} else {
 			posts.push(post);
 			saveMetadata(posts).then(function() {
+				tagService.onPostAdd(post);
 				resolve(post);
 			}, function(err) {
 				reject(err);
@@ -85,19 +89,25 @@ var saveMetadata = function(posts) {
 };
 
 var deletePost = function(id) {
+	var post = undefined;
 	for (var i = 0; i < posts.length; i++) {
-		var post = posts[i];
+		post = posts[i];
 		if (post.id == id) {
 			posts.splice(i, 1);
 			break;
 		}
 	}
 	return new Promise(function(resolve, reject) {
-		saveMetadata(posts).then(function() {
-			resolve(id);
-		}, function(err) {
-			reject(err);
-		});
+		if(post) {
+			saveMetadata(posts).then(function() {
+				tagService.onPostDelete(post);
+				resolve(post);
+			}, function(err) {
+				reject(err);
+			});
+		} else {
+			reject(id + " could not be found.");
+		}
 	});
 };
 

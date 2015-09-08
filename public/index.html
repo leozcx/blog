@@ -27,7 +27,6 @@
 	</head>
 
 	<body ng-app='blogApp' ng-controller="MainController as mainController">
-
 		<!-- Navigation -->
 		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
@@ -67,80 +66,30 @@
 			</div>
 			<!-- /.container -->
 		</nav>
+		<div id="wrap">
+			<!-- Page Content -->
+			<div class="container">
 
-		<!-- Page Content -->
-		<div class="container">
-
-			<div class="row">
-
-				<!-- Blog Entries Column -->
-				<div class="col-md-8">
-					<div ng-view></div>
-
-				</div>
-
-				<!-- Blog Sidebar Widgets Column -->
-				<div class="col-md-4">
-
-					<!-- Blog Search Well -->
-					<div class="well">
-						<h4>Blog Search</h4>
-						<div class="input-group">
-							<input type="text" class="form-control">
-							<span class="input-group-btn">
-								<button class="btn btn-default" type="button">
-									<span class="glyphicon glyphicon-search"></span>
-								</button> </span>
-						</div>
-						<!-- /.input-group -->
-					</div>
-
-					<!-- Blog Categories Well -->
-					<div class="well">
-						<h4>Blog Categories</h4>
-						<div class="row" ng-controller="TagController as tagController">
-							<div class="col-lg-6">
-								<ul class="list-unstyled">
-									<li ng-repeat="tag in leftHalf">
-										<a href="#posts?tag={{tag.name}}">{{tag.name}}</a>
-									</li>
-								</ul>
-							</div>
-							<!-- /.col-lg-6 -->
-							<div class="col-lg-6">
-								<ul class="list-unstyled">
-									<li ng-repeat="tag in rightHalf">
-										<a href="#posts?tag={{tag.name}}">{{tag.name}}</a>
-									</li>
-								</ul>
-							</div>
-							<!-- /.col-lg-6 -->
-						</div>
-						<!-- /.row -->
-					</div>
-
-				</div>
-
-			</div>
-			<!-- /.row -->
-
-			<hr>
-
-			<!-- Footer -->
-			<footer>
 				<div class="row">
-					<div class="col-lg-12">
-						<p>
-							Copyright &copy; Leo 2015
-						</p>
-					</div>
-					<!-- /.col-lg-12 -->
-				</div>
-				<!-- /.row -->
-			</footer>
 
+					<!-- Blog Entries Column -->
+					<div class="col-md-12">
+						<div ng-view></div>
+					</div>
+
+				</div>
+				<hr>
+			</div>
 		</div>
-		<!-- /.container -->
+		<footer class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<p>
+						Copyright &copy; Leo 2015
+					</p>
+				</div>
+			</div>
+		</footer>
 
 		<!-- jQuery -->
 		<script src="jquery/dist/jquery.js"></script>

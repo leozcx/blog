@@ -44,7 +44,7 @@ router.put("/:id", loggedService.ensureLoggedIn(), function(req, res) {
 router.delete("/:id", loggedService.ensureLoggedIn(), function(req, res) {
 	fetcher.deletePost(req.params.id).then(function(ret) {
 		res.json({
-			id : ret
+			id : ret.id
 		});
 	}, function(err) {
 		res.status(500).send(err);
