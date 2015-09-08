@@ -3,19 +3,11 @@ var path = require('path');
 var fs = require('fs');
 var abs = require('./abstractGenerator');
 var metaFile = path.join(__dirname, 'data', 'meta.json');
-var posts = [{
-	id : "1",
-	title : "Title1",
-	author : "admin",
-	createdOn : 1288323623006,
-	updatedOn : 1288323623006,
-	abstract : "#abstract",
-	content : "*this is the whole content*",
-	contentType : "markdown"
-}];
+var postsDir = path.join(__dirname, 'uploads');
+var posts = [];
 
 console.log("defaultFetacher")
-posts = fs.readFileSync(path.join(__dirname, 'data', 'meta.json'), 'utf-8');
+posts = fs.readFileSync(metaFile, 'utf-8');
 posts = JSON.parse(posts);
 
 var getPost = function(id) {
@@ -39,7 +31,7 @@ var save = function(post, file, update) {
 		}
 		if (file) {
 			var tmp_path = file.path;
-			var target_dir = path.join(__dirname, 'data');
+			var target_dir = postsDir;
 			try {
 				fs.mkdirSync(target_dir);
 			} catch(e) {
@@ -121,7 +113,7 @@ exports.get = function(id) {
 		if (post.content)
 			resolve(post);
 		else {
-			var target_dir = path.join(__dirname, 'data', post.fileName || post.title);
+			var target_dir = path.join(postsDir, post.fileName || post.title);
 			fs.readFile(target_dir, 'utf8', function(err, data) {
 				if (err) {
 					reject(err);
