@@ -4,12 +4,15 @@ var fs = require('fs');
 var abs = require('./abstractGenerator');
 var tagService = require('./tagService');
 var metaFile = path.join(__dirname, 'data', 'meta.json');
+var commentFile = path.join(__dirname, 'data', 'comment.json');
 var postsDir = path.join(__dirname, 'uploads');
 var posts = [];
 
 console.log("defaultFetacher")
 posts = fs.readFileSync(metaFile, 'utf-8');
 posts = JSON.parse(posts);
+comments = fs.readFileSync(commentFile, 'utf-8');
+comments = JSON.parse(comments);
 
 var getPost = function(id) {
 	for (var i = posts.length - 1; i >= 0; i--) {
@@ -120,9 +123,7 @@ exports.getPost = getPost;
 exports.get = function(id) {
 	var post = getPost(id);
 	var promise = new Promise(function(resolve, reject) {
-		if (post.content)
-			resolve(post);
-		else {
+		if (!post.content) {
 			var target_dir = path.join(postsDir, post.fileName || post.title);
 			fs.readFile(target_dir, 'utf8', function(err, data) {
 				if (err) {
@@ -130,9 +131,12 @@ exports.get = function(id) {
 				}
 				post['abstract'] = abs.generate(data);
 				post.content = data;
-				resolve(post);
 			});
 		}
+		var comments = exports.getComments(id);
+		if(comments)
+			post.comments = comments;
+		resolve(post);
 	});
 	return promise;
 
@@ -142,3 +146,21 @@ exports.save = function(post, file, update){
 	return save(post, file, update);
 };
 exports.deletePost = deletePost;
+exports.getComments = function(postId) {
+	return comments[postId];
+};
+exports.saveComment = function(data, postId) {
+	var p = new Promise(function(resolve, reject) {
+		if(!comments[postId])
+			comments[postId] = [];
+		comments[postId].push(data);
+		var str = JSON.stringify(comments, null, 2);
+		fs.writeFile(commentFile, str, function(err) {
+			if (err)
+				reject(err);
+			else
+				resolve(data);
+		});
+	});
+	return p;
+};

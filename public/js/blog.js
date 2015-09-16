@@ -76,6 +76,22 @@ function($scope, $http, $routeParams) {
 	}, function(error) {
 		console.err(error);
 	});
+	
+	$scope.newComment = "";
+	
+	$scope.addComment = function() {
+		var comment = $scope.newComment.trim();
+		if(comment !== "") {
+			$http.post("/posts/"+$scope.post.id+"/comment", {
+				comment: comment
+			}).then(function(res) {
+				$scope.post.comments.push(res.data);
+			}, function(error) {
+				console.log(error);
+			});
+		}
+		console.log($scope.newComment);
+	};
 }]);
 
 blogApp.controller("EditPostController", ["$scope", "$controller", "$http", "shareDataService",

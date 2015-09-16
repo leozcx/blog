@@ -41,6 +41,18 @@ router.put("/:id", loggedService.ensureLoggedIn(), function(req, res) {
 	});
 });
 
+router.post("/:id/comment", function(req, res) {
+	var data = req.body;
+	data.id = uuid.v4();
+	data.createdOn = new Date().getTime();
+	var postId = req.params.id;
+	fetcher.saveComment(data, postId).then(function(ret) {
+		res.json(ret);
+	}, function(error) {
+		res.status(500).json(err);
+	});
+});
+
 router.delete("/:id", loggedService.ensureLoggedIn(), function(req, res) {
 	fetcher.deletePost(req.params.id).then(function(ret) {
 		res.json({

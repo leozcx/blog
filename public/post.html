@@ -15,3 +15,30 @@
 
 <!-- Post Content -->
 <div marked="post.content"></div>
+
+<!-- Comments Form -->
+<div class="well">
+	<h4>Leave a Comment:</h4>
+	<form role="form">
+		<div class="form-group">
+			<textarea class="form-control" rows="3" ng-model="newComment"></textarea>
+		</div>
+		<button type="submit" class="btn btn-primary" ng-click="addComment()">
+			Submit
+		</button>
+	</form>
+</div>
+
+<hr>
+
+<!-- Posted Comments -->
+
+<!-- Comment -->
+
+<div class="media" ng-repeat="comment in post.comments">
+	<a class="pull-left" href="#"> <img class="media-object" src="http://placehold.it/64x64" alt=""> </a>
+	<div class="media-body">
+		<h4 class="media-heading">{{comment.user || "匿名用户"}} <small>{{comment.createdOn | date:'yyyy-MM-dd HH:mm'}}</small></h4>
+		{{comment.comment}}
+	</div>
+</div>
