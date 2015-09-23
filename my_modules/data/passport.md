@@ -3,8 +3,8 @@
 ===================
 
 
-认证模块是几乎所有web应用都需要的功能，主要解决谁是谁的问题；但写好一个认证模块却并不那么容易，对认证授权这套理论没有足够了解的话很容易就暴露出安全问题；认证的方式也越来越多，从最初的基于用户名+密码认证，到现在越来越多的第三方平台认证，光是支持几个流行的第三方平台就是不小的工作工作量；幸好已经有很多成熟的解决方案，既省了从头写的工作，安全性又有保障。 `passport` 是Nodejs中比较受欢迎的认证模块，可以跟`express` 无缝集成，今天使用了一下，看似简单，但还是花了不少时间才跑通。
-接下来我们将从头开始生成一个叫passport-demo的简单web应用，基于express，演示基本的passport的用法。
+认证模块是几乎所有web应用都需要的功能：输入对应的用户名跟密码，证明你就是你。对于很多初学者来说，包括我自己，对于应该如何实现认证模块还是有些模糊：密码如何存储？如何加密？认证时如何比对？用户登陆状态如何持久化？怎么支持第三方比如微博，QQ认证？等等。要了解这些问题，最好的方法就是找一个比较成熟的解决方案，亲自使用一下，看看人家是怎么做的。 `passport` 是Nodejs中比较受欢迎的认证模块，提供了从常用的基于用户名密码的表单登陆方式，到基于第三方应用的认证方式，还可以跟`express` 无缝集成，是个很不错的工具。今天使用了一下，看似简单，但还是花了不少时间才跑通。
+接下来我们将从头开始生成一个叫passport-demo的简单web应用，基于express，演示基本的passport的用法。这个例子并不能解决所有上面提到的问题，但至少可以做为一个学习的开始。
 
 ----------
 ##生成应用骨架
@@ -79,14 +79,14 @@ passport.use(new Strategy(function(username, password, cb) {
 		cb(null, false);
 	}
 }));
-//将用户信息持久化到session中，这里的users就是上面认证成功后callback的第2个参数;在本例中，passport将把用户id TODO: more detail
-passport.serializeUser(function(users, cb) {
-	cb(null, users.id);
+//将用户信息持久化到session中，这里的user就是上面认证成功后callback的第2个参数;在本例中，passport将把用户id写入session；注意，要想持久化到session，必须使用session中间件，即下面所示的"express-session"
+passport.serializeUser(function(user, cb) {
+	cb(null, user.id);
 });
-//将用户信息从session中提取出来 TODO: more detail
-passport.deserializeUser(function(user1, cb) {
+//将用户信息从session中提取出来，user是持久化到session的内容，这里只有一个id；cb的第2个参数应该跟Strategy中使用的格式一致
+passport.deserializeUser(function(user, cb) {
 	cb(null, {
-		id : user1
+		id : user
 	});
 });
 
@@ -108,8 +108,9 @@ app.use(require('express-session')({
 	resave : false,
 	saveUninitialized : false
 }));
-
+//初始化passport使用的私有变量
 app.use(passport.initialize());
+//允许passport在enable session的情况下从session中获取用户信息
 app.use(passport.session());
 
 app.post('/login', passport.authenticate('local', {
@@ -117,12 +118,8 @@ app.post('/login', passport.authenticate('local', {
 }), function(req, res) {
 	res.redirect('/');
 });
-
 app.use('/', routes);
-
 module.exports = app;
-
 ```
 ## Strategy
 Passport支持不同类型的认证方式，从传统的基于用户名+密码表单的认证，到近几年流行的基于[OAuth](http://oauth.net/) 的社交网络帐号的认证，比如新浪微博，qq等，这是通过使用不同的Strategy实现的。比如上面例子中使用的`passport-local` strategy，提供的就是基于用户名+密码的认证方式；Passport目前提供超过300种不同的strategry，[这里](http://passportjs.org/)可以搜索所有支持的strategy。
-TODO: local-strategy的执行过程
