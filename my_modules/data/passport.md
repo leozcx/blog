@@ -7,7 +7,8 @@
 接下来我们将从头开始生成一个叫passport-demo的简单web应用，基于express，演示基本的passport的用法。这个例子并不能解决所有上面提到的问题，但至少可以做为一个学习的开始。
 
 ----------
-##生成应用骨架
+## 生成应用骨架
+
 不同类型的应用对文件的组织有不同的最佳实践，这里推荐使用[yo](http://yeoman.io/)，一个专门用于生成web应用基本结构的工具，来生成我们的应用。
 ```
 //安装yo
@@ -51,8 +52,8 @@ npm install passport -S
 		<br>
 	</body>
 </html>
-
 ```
+
 这个页面只包含一个用户名输入框，一个密码输入框，以及一个提交按钮； 注意，用户名输入框的`name`必须是"username", 密码的`name`必须是"password"，这样后台处理的时候直接可以建立对应关系，否则就必须多一步配置。表单提交后由`/login` 对应的服务处理。
 
 ### 后台处理
@@ -123,3 +124,5 @@ module.exports = app;
 ```
 ## Strategy
 Passport支持不同类型的认证方式，从传统的基于用户名+密码表单的认证，到近几年流行的基于[OAuth](http://oauth.net/) 的社交网络帐号的认证，比如新浪微博，qq等，这是通过使用不同的Strategy实现的。比如上面例子中使用的`passport-local` strategy，提供的就是基于用户名+密码的认证方式；Passport目前提供超过300种不同的strategry，[这里](http://passportjs.org/)可以搜索所有支持的strategy。
+## 小结
+这篇文章通过一个简单的例子演示了"passport"的用法，可以看到，使用"passport"可以很方便地生成用户登陆模块，这无疑极大减少了开发工作。
