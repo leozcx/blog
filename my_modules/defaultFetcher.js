@@ -164,3 +164,25 @@ exports.saveComment = function(data, postId) {
 	});
 	return p;
 };
+
+exports.deleteComment = function(id, postId) {
+	var p = new Promise(function(resolve, reject) {
+		var cs = comments[postId];
+		for(var i = 0; i < cs.length; i++) {
+			var c = cs[i];
+			console.log(c.id + ": " + id)
+			if(c.id == id) {
+				cs.splice(i, 1);
+				break;
+			}
+		}
+		var str = JSON.stringify(comments, null, 2);
+		fs.writeFile(commentFile, str, function(err) {
+			if (err)
+				reject(err);
+			else
+				resolve({id: id});
+		});
+	});
+	return p;
+};

@@ -8,7 +8,6 @@ var upload = multer({
 	dest : path.join(__dirname, 'articles')
 });
 var uuid = require('uuid');
-var abs = require('../my_modules/abstractGenerator');
 var tagService = require('../my_modules/tagService');
 
 router.get("/", function(req, res) {
@@ -50,6 +49,18 @@ router.post("/:id/comment", function(req, res) {
 		res.json(ret);
 	}, function(error) {
 		res.status(500).json(err);
+	});
+});
+
+router.delete("/:id/comment/:commentId", loggedService.ensureLoggedIn(), function(req, res) {
+	console.log(req.param.id)
+	console.log(req.params.commentId)
+	fetcher.deleteComment(req.param.commentId, req.params.id).then(function(ret) {
+		res.json({
+			id : ret.id
+		});
+	}, function(err) {
+		res.status(500).send(err);
 	});
 });
 

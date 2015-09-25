@@ -29,5 +29,8 @@
     "angular-translate-loader-static-files": "~2.7.2",
     "angular-xeditable": "~0.1.9",
     "bootstrap": "~3.3.5"
+  },
+  "resolutions": {
+    "angular": "1.4.6"
   }
 }

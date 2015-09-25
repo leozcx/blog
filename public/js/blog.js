@@ -68,9 +68,10 @@ function($scope, $rootScope, $http, $location, $routeParams, util, shareDataServ
 	}
 }]);
 
-blogApp.controller("PostController", ["$scope", "$http", "$routeParams",
-function($scope, $http, $routeParams) {
+blogApp.controller("PostController", ["$scope", "$http", "$routeParams", "userService", "util",
+function($scope, $http, $routeParams, userService, util) {
 	$scope.id = $routeParams.id;
+	$scope.editable = true;//userService.isLoggedIn;
 	$http.get("/posts/" + $scope.id).then(function(res) {
 		$scope.post = res.data;
 	}, function(error) {
@@ -78,12 +79,18 @@ function($scope, $http, $routeParams) {
 	});
 	
 	$scope.newComment = "";
+	$scope.name = "";
+	$scope.email = "";
 	
 	$scope.addComment = function() {
 		var comment = $scope.newComment.trim();
+		var name = $scope.name.trim();
+		var email = $scope.email.trim();
 		if(comment !== "") {
 			$http.post("/posts/"+$scope.post.id+"/comment", {
-				comment: comment
+				comment: comment,
+				user: name,
+				email: email
 			}).then(function(res) {
 				$scope.post.comments.push(res.data);
 			}, function(error) {
@@ -91,6 +98,26 @@ function($scope, $http, $routeParams) {
 			});
 		}
 		console.log($scope.newComment);
+	};
+	
+	$scope.enableEdit = function(comment) {
+		comment.editable = $scope.editable && true;;
+	};
+	
+	$scope.disableEdit = function(comment) {
+		comment.editable = false;
+	};
+	
+	$scope.onDelete = function(comment) {
+		if($scope.editable) {
+			console.log(comment)
+			$http.delete("/posts/" + $scope.id+"/comment/"+comment.id).then(function(res) {
+				console.log(res)
+				//util.deleteFromArray($scope.post.comment, post);
+			}, function(error) {
+				console.log(error);
+			});
+		}
 	};
 }]);
 
