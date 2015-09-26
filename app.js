@@ -31,7 +31,8 @@ app.use(express.static(path.join(__dirname, 'bower_components')));
 app.use(require('express-session')({
 	secret : 'keyboard cat',
 	resave : false,
-	saveUninitialized : false
+	saveUninitialized : false,
+	cookie: { maxAge: 600000 }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

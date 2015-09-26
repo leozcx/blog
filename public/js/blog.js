@@ -92,6 +92,8 @@ function($scope, $http, $routeParams, userService, util) {
 				user: name,
 				email: email
 			}).then(function(res) {
+				if(!$scope.post.comments)
+					$scope.post.comments = [];
 				$scope.post.comments.push(res.data);
 			}, function(error) {
 				console.log(error);
@@ -110,10 +112,8 @@ function($scope, $http, $routeParams, userService, util) {
 	
 	$scope.onDelete = function(comment) {
 		if($scope.editable) {
-			console.log(comment)
 			$http.delete("/posts/" + $scope.id+"/comment/"+comment.id).then(function(res) {
-				console.log(res)
-				//util.deleteFromArray($scope.post.comment, post);
+				util.deleteFromArrayById($scope.post.comments, res.data.id);
 			}, function(error) {
 				console.log(error);
 			});
@@ -170,7 +170,7 @@ function($scope, $http, $location, userService) {
 		$http.post('/login', {
 			username : $scope.username,
 			password : $scope.password
-		}).then(function(data) {
+		}).then(function(ret) {
 			userService.isLoggedIn = true;
 			userService.user = data.data.username;
 			$location.path(newPath);
@@ -240,6 +240,16 @@ function() {
 		var index = array.indexOf(item);
 		array.splice(index, 1);
 		return array;
+	};
+	
+	obj.deleteFromArrayById = function(array, id) {
+		for(var i = 0; i < array.length; i++) {
+			var item = array[i];
+			if(item.id && item.id === id) {
+				array.splice(i, 1);
+				return array;
+			}
+		}
 	};
 
 	obj.getPostFromFile = function(file) {

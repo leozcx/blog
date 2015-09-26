@@ -7,12 +7,27 @@ var metaFile = path.join(__dirname, 'data', 'meta.json');
 var commentFile = path.join(__dirname, 'data', 'comment.json');
 var postsDir = path.join(__dirname, 'uploads');
 var posts = [];
+var comments = {};
 
-console.log("defaultFetacher")
-posts = fs.readFileSync(metaFile, 'utf-8');
-posts = JSON.parse(posts);
-comments = fs.readFileSync(commentFile, 'utf-8');
-comments = JSON.parse(comments);
+try {
+	posts = fs.readFileSync(metaFile, 'utf-8');
+	posts = JSON.parse(posts);
+} catch(e) {
+	//file not found
+	if (e.code !== 'ENOENT') {
+		console.log(e);
+	}
+}
+
+try {
+	comments = fs.readFileSync(commentFile, 'utf-8');
+	comments = JSON.parse(comments);
+} catch(e) {
+	//file not found
+	if (e.code !== 'ENOENT') {
+		console.log(e);
+	}
+}
 
 var getPost = function(id) {
 	for (var i = posts.length - 1; i >= 0; i--) {
@@ -101,7 +116,7 @@ var deletePost = function(id) {
 		}
 	}
 	return new Promise(function(resolve, reject) {
-		if(post) {
+		if (post) {
 			saveMetadata(posts).then(function() {
 				tagService.onPostDelete(post);
 				resolve(post);
@@ -125,24 +140,31 @@ exports.get = function(id) {
 	var promise = new Promise(function(resolve, reject) {
 		if (!post.content) {
 			var target_dir = path.join(postsDir, post.fileName || post.title);
+			console.log(target_dir);
 			fs.readFile(target_dir, 'utf8', function(err, data) {
 				if (err) {
 					reject(err);
 				}
-				post['abstract'] = abs.generate(data);
+				if (!post['abstract'])
+					post['abstract'] = abs.generate(data);
 				post.content = data;
+				var comments = exports.getComments(id);
+				if (comments)
+					post.comments = comments;
+				resolve(post);
 			});
+		} else {
+			var comments = exports.getComments(id);
+			if (comments)
+				post.comments = comments;
+			resolve(post);
 		}
-		var comments = exports.getComments(id);
-		if(comments)
-			post.comments = comments;
-		resolve(post);
 	});
 	return promise;
 
 };
 
-exports.save = function(post, file, update){
+exports.save = function(post, file, update) {
 	return save(post, file, update);
 };
 exports.deletePost = deletePost;
@@ -151,7 +173,7 @@ exports.getComments = function(postId) {
 };
 exports.saveComment = function(data, postId) {
 	var p = new Promise(function(resolve, reject) {
-		if(!comments[postId])
+		if (!comments[postId])
 			comments[postId] = [];
 		comments[postId].push(data);
 		var str = JSON.stringify(comments, null, 2);
@@ -168,10 +190,10 @@ exports.saveComment = function(data, postId) {
 exports.deleteComment = function(id, postId) {
 	var p = new Promise(function(resolve, reject) {
 		var cs = comments[postId];
-		for(var i = 0; i < cs.length; i++) {
+		for (var i = 0; i < cs.length; i++) {
 			var c = cs[i];
 			console.log(c.id + ": " + id)
-			if(c.id == id) {
+			if (c.id == id) {
 				cs.splice(i, 1);
 				break;
 			}
@@ -181,7 +203,9 @@ exports.deleteComment = function(id, postId) {
 			if (err)
 				reject(err);
 			else
-				resolve({id: id});
+				resolve({
+					id : id
+				});
 		});
 	});
 	return p;

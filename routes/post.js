@@ -53,9 +53,9 @@ router.post("/:id/comment", function(req, res) {
 });
 
 router.delete("/:id/comment/:commentId", loggedService.ensureLoggedIn(), function(req, res) {
-	console.log(req.param.id)
+	console.log(req.params.id)
 	console.log(req.params.commentId)
-	fetcher.deleteComment(req.param.commentId, req.params.id).then(function(ret) {
+	fetcher.deleteComment(req.params.commentId, req.params.id).then(function(ret) {
 		res.json({
 			id : ret.id
 		});
