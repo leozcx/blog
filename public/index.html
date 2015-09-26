@@ -46,19 +46,19 @@
 						<li>
 							<a href="#posts" ng-click="load('#posts')">Posts</a>
 						</li>
-						<li ng-if="userService.isLoggedIn">
+						<li ng-if="userService.isLoggedIn()">
 							<a href="#new">New</a>
 						</li>
 						<li>
 							<a href="#about">Contact</a>
 						</li>
 					</ul>
-					<ul class="nav navbar-nav navbar-right" ng-if="userService.isLoggedIn">
+					<ul class="nav navbar-nav navbar-right" ng-if="userService.isLoggedIn()">
 						<li>
-							<a href="#profile">{{userService.user}}</a>
+							<a href="#profile">{{userService.getUsername()}}</a>
 						</li>
 						<li>
-							<a class="glyphicon glyphicon-log-out" title="logout" href="/logout"></a>
+							<a class="glyphicon glyphicon-log-out" title="logout" href="/logout" ng-click="logout()"></a>
 						</li>
 					</ul>
 				</div>

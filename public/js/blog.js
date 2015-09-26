@@ -5,9 +5,12 @@ function($scope, $route, $routeParams, $location, $window, userService) {
 	$scope.$route = $route;
 	$scope.$location = $location;
 	$scope.$routeParams = $routeParams;
-
 	$scope.userService = userService;
 
+	$scope.logout = function() {
+		userService.logout();
+	};
+	
 	$scope.load = function(path) {
 		$window.location.href = path;
 	};
@@ -16,7 +19,7 @@ function($scope, $route, $routeParams, $location, $window, userService) {
 blogApp.controller("PostsController", ["$scope", "$rootScope", "$http", "$location", "$routeParams", "util", "shareDataService", "userService",
 function($scope, $rootScope, $http, $location, $routeParams, util, shareDataService, userService) {
 	$scope.posts = $rootScope.$root.allPosts;
-	$scope.editable = userService.isLoggedIn;
+	$scope.editable = userService.isLoggedIn();
 
 	$scope.enableEdit = function(post) {
 		post.editable = $scope.editable && true;
@@ -71,7 +74,7 @@ function($scope, $rootScope, $http, $location, $routeParams, util, shareDataServ
 blogApp.controller("PostController", ["$scope", "$http", "$routeParams", "userService", "util",
 function($scope, $http, $routeParams, userService, util) {
 	$scope.id = $routeParams.id;
-	$scope.editable = true;//userService.isLoggedIn;
+	$scope.editable = userService.isLoggedIn();
 	$http.get("/posts/" + $scope.id).then(function(res) {
 		$scope.post = res.data;
 	}, function(error) {
@@ -164,15 +167,14 @@ function($scope, $http, FileUploader, util) {
 	};
 }]);
 
-blogApp.controller('LoginController', ["$scope", "$http", "$location", "userService",
-function($scope, $http, $location, userService) {
+blogApp.controller('LoginController', ["$scope", "$http", "$location", "$window", 
+function($scope, $http, $location, $window) {
 	$scope.login = function(newPath) {
 		$http.post('/login', {
 			username : $scope.username,
 			password : $scope.password
 		}).then(function(ret) {
-			userService.isLoggedIn = true;
-			userService.user = data.data.username;
+			$window.sessionStorage["user"] = JSON.stringify(ret.data);
 			$location.path(newPath);
 		}, function(err) {
 			console.log(err);
@@ -284,11 +286,19 @@ blogApp.factory('shareDataService', function() {
 
 });
 
-blogApp.factory('userService', [
-function() {
+blogApp.factory('userService', ["$window",
+function($window) {
+	function isLoggedIn() {
+		return $window.sessionStorage["user"] !== undefined;
+	};
 	var sdo = {
-		isLoggedIn : false,
-		user : "temp"
+		isLoggedIn : isLoggedIn,
+		logout: function() {
+			delete $window.sessionStorage["user"];
+		},
+		getUsername : function() {
+			return isLoggedIn() ? JSON.parse($window.sessionStorage["user"]).username : undefined;;
+		}
 	};
 	return sdo;
 }]);
