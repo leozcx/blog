@@ -14,6 +14,7 @@ function($scope, $route, $routeParams, $location, $window, userService) {
 	$scope.load = function(path) {
 		$window.location.href = path;
 	};
+	
 }]);
 
 blogApp.controller("PostsController", ["$scope", "$rootScope", "$http", "$location", "$routeParams", "util", "shareDataService", "userService",
