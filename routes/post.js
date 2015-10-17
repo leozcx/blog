@@ -53,8 +53,6 @@ router.post("/:id/comment", function(req, res) {
 });
 
 router.delete("/:id/comment/:commentId", loggedService.ensureLoggedIn(), function(req, res) {
-	console.log(req.params.id)
-	console.log(req.params.commentId)
 	fetcher.deleteComment(req.params.commentId, req.params.id).then(function(ret) {
 		res.json({
 			id : ret.id
@@ -94,7 +92,7 @@ router.post("/", loggedService.ensureLoggedIn(), upload.single("file"), function
 		}
 	}
 	//save file
-	fetcher.save(post, req.file, update).then(function(ret) {
+	fetcher.save(post, req.file).then(function(ret) {
 		res.json(ret);
 	}, function(err) {
 		res.status(500).json(err);

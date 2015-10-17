@@ -36,9 +36,9 @@ var getPost = function(id) {
 	};
 };
 
-var save = function(post, file, update) {
+var save = function(post, file) {
 	var promise = new Promise(function(resolve, reject) {
-		if (update) {
+		if (post.id) {
 			//remove the existing one if there is
 			for (var i = 0; i < posts.length; i++) {
 				var p = posts[i];
@@ -162,6 +162,13 @@ exports.get = function(id) {
 	});
 	return promise;
 
+};
+
+exports.getByTitle = function(title) {
+	for (var i = posts.length - 1; i >= 0; i--) {
+		if (posts[i].title == title)
+			return posts[i];
+	};
 };
 
 exports.save = function(post, file, update) {
