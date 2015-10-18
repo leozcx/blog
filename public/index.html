@@ -55,7 +55,7 @@
 					</ul>
 					<ul class="nav navbar-nav navbar-right" ng-if="userService.isLoggedIn()">
 						<li>
-							<a href="/sync">Sync</a>
+							<a href="#posts" ng-click="sync()">Sync</a>
 						</li>
 						<li>
 							<a href="#profile">{{userService.getUsername()}}</a>

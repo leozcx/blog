@@ -11,7 +11,7 @@ var comments = {};
 
 try {
 	posts = fs.readFileSync(metaFile, 'utf-8');
-	posts = JSON.parse(posts);
+	posts = posts === "" ? [] : JSON.parse(posts);
 } catch(e) {
 	//file not found
 	if (e.code !== 'ENOENT') {
@@ -171,8 +171,8 @@ exports.getByTitle = function(title) {
 	};
 };
 
-exports.save = function(post, file, update) {
-	return save(post, file, update);
+exports.save = function(post, file) {
+	return save(post, file);
 };
 exports.deletePost = deletePost;
 exports.getComments = function(postId) {

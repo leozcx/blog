@@ -1,7 +1,7 @@
 var blogApp = angular.module("blogApp", ["ngRoute", "hc.marked", "angularFileUpload", "xeditable"]);
 
-blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$location', "$window", "userService",
-function($scope, $route, $routeParams, $location, $window, userService) {
+blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$location', "$window", "$http", "userService",
+function($scope, $route, $routeParams, $location, $window, $http, userService) {
 	$scope.$route = $route;
 	$scope.$location = $location;
 	$scope.$routeParams = $routeParams;
@@ -15,6 +15,17 @@ function($scope, $route, $routeParams, $location, $window, userService) {
 		$window.location.href = path;
 	};
 	
+	$scope.sync = function() {
+		$http.get("/sync").then(function(res) {
+			console.log(res);
+			if(res.data)
+				for(var i = 0; i < res.data.length; i++) {
+					$rootScope.$root.allPosts.push(res.data[i]);
+				}
+		}, function(err) {
+			console.log(err)
+		});
+	};
 }]);
 
 blogApp.controller("PostsController", ["$scope", "$rootScope", "$http", "$location", "$routeParams", "util", "shareDataService", "userService",
