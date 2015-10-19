@@ -1,7 +1,7 @@
 var blogApp = angular.module("blogApp", ["ngRoute", "hc.marked", "angularFileUpload", "xeditable"]);
 
-blogApp.controller('MainController', ['$scope', '$route', '$routeParams', '$location', "$window", "$http", "userService",
-function($scope, $route, $routeParams, $location, $window, $http, userService) {
+blogApp.controller('MainController', ['$scope', '$rootScope', '$route', '$routeParams', '$location', "$window", "$http", "userService",
+function($scope, $rootScope, $route, $routeParams, $location, $window, $http, userService) {
 	$scope.$route = $route;
 	$scope.$location = $location;
 	$scope.$routeParams = $routeParams;
