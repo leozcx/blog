@@ -28,15 +28,15 @@ function($scope, $rootScope, $route, $routeParams, $location, $window, $http, us
 	};
 }]);
 
+
 blogApp.controller("PostsController", ["$scope", "$rootScope", "$http", "$location", "$routeParams", "util", "shareDataService", "userService",
 function($scope, $rootScope, $http, $location, $routeParams, util, shareDataService, userService) {
 	$scope.posts = $rootScope.$root.allPosts;
 	$scope.editable = userService.isLoggedIn();
-
 	$scope.enableEdit = function(post) {
 		post.editable = $scope.editable && true;
 	};
-
+console.log("---")
 	$scope.disableEdit = function(post) {
 		post.editable = false;
 	};
@@ -177,6 +177,13 @@ function($scope, $http, FileUploader, util) {
 			item.upload();
 		};
 	};
+}]);
+
+blogApp.controller('CalculatorController', ["$scope", function($scope) {
+  $scope.z = 0;
+  $scope.sum = function() {
+    $scope.z = $scope.x + $scope.y;
+  };
 }]);
 
 blogApp.controller('LoginController', ["$scope", "$http", "$location", "$window", 

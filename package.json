@@ -27,8 +27,13 @@
   },
   "devDependencies": {
     "gulp": "^3.9.0",
-    "gulp-nodemon": "^2.0.2",
     "gulp-livereload": "^3.8.0",
-    "gulp-plumber": "^1.0.0"
+    "gulp-nodemon": "^2.0.2",
+    "gulp-plumber": "^1.0.0",
+    "jasmine-core": "^2.3.4",
+    "karma": "^0.13.11",
+    "karma-chrome-launcher": "^0.2.1",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-jasmine": "^0.3.6"
   }
 }
