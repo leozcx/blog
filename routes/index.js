@@ -144,10 +144,12 @@ router.get('/sync', function(req, res, next) {
 						needUpdate = true;
 					}
 					if (needUpdate) {
+						console.log("about to get content");
 						request(result.download_url, function(error, response, body) {
 							if (!error && response.statusCode == 200) {
 								post.content = body;
 								post['abstract'] = abs.generate(body);
+								console.log("about to save");
 								fetcher.save(post).then(function(post) {
 									delete post.content;
 									log.debug("Saved %s: %s", title, post);

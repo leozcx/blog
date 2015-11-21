@@ -49,6 +49,16 @@ var save = function(post, file) {
 				}
 			}
 		}
+		var _saveMata = function(post) {
+			posts.push(post);
+			saveMetadata(posts).then(function() {
+				tagService.onPostAdd(post);
+				resolve(post);
+			}, function(err) {
+				reject(err);
+			});
+		};
+		//it's uploading
 		if (file) {
 			var tmp_path = file.path;
 			var target_dir = postsDir;
@@ -68,26 +78,22 @@ var save = function(post, file) {
 				console.log('got %d bytes of data', chunk.length);
 			});
 			src.on('end', function() {
-				posts.push(post);
-				saveMetadata(posts).then(function() {
-					tagService.onPostAdd(post);
-					resolve(post);
-				}, function(err) {
-					reject(err);
-				});
+				_saveMata(post);
 			});
 			src.on('error', function(err) {
 				reject(err);
 			});
-		} else {
-			posts.push(post);
-			saveMetadata(posts).then(function() {
-				tagService.onPostAdd(post);
-				resolve(post);
-			}, function(err) {
-				reject(err);
+		} else if (post.content) {
+			//it's sync from git
+			var target_path = path.join(target_dir, post.title);
+			fs.writeFile(target_path, post.content, function(err) {
+				if (err)
+					reject(err);
+				else
+					delete post.content; //don't save content to meta
 			});
 		}
+		_saveMata(post);
 	});
 
 	return promise;
@@ -140,7 +146,6 @@ exports.get = function(id) {
 	var promise = new Promise(function(resolve, reject) {
 		if (!post.content) {
 			var target_dir = path.join(postsDir, post.fileName || post.title);
-			console.log(target_dir);
 			fs.readFile(target_dir, 'utf8', function(err, data) {
 				if (err) {
 					reject(err);

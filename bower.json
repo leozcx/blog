@@ -24,6 +24,7 @@
     "angular": "~1.4.4",
     "angular-file-upload": "~2.1.1",
     "angular-marked": "~0.0.21",
+    "angular-mocks": "~1.4.7",
     "angular-route": "~1.4.4",
     "angular-translate": "~2.7.2",
     "angular-translate-loader-static-files": "~2.7.2",
