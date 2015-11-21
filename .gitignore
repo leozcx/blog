@@ -3,3 +3,5 @@ node_modules
 bower_components
 articles
 my_modules/uploads
+error.log
+trace.log

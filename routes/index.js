@@ -8,19 +8,24 @@ var abs = require('../my_modules/abstractGenerator');
 var fetcher = require('../my_modules/defaultFetcher');
 var async = require("async");
 var uuid = require('uuid');
-
-var github = new GitHubApi({
-	// required
-	version : "3.0.0",
-	// optional
-	debug : true,
-	protocol : "https",
-	host : "api.github.com", // should be api.github.com for GitHub
-	timeout : 5000,
-	headers : {
-		"user-agent" : "Leo's blog" // GitHub is happy with a unique user agent
-	}
+var bunyan = require('bunyan');
+var log = bunyan.createLogger({
+	name : 'foo',
+	streams : [{
+		path : '__dirname/../trace.log',
+		level : 'trace'
+	}, {
+		path : '__dirname/../error.log',
+		level : 'error'
+	}]
 });
+nconf = require('nconf');
+nconf.argv().env();
+if (process.env.DEVELOPMENT)
+	nconf.file('dev', "./config/app-development.json");
+nconf.file('./config/app.json');
+
+var github = new GitHubApi(nconf.get('gitHub'));
 
 var gitRepo = {
 	user : "zcx8532",
@@ -64,7 +69,14 @@ router.get('/logout', function(req, res, next) {
 	});
 });
 
+//sync with github
 router.get('/sync', function(req, res, next) {
+	//1. get tree, return all files
+	// - GET /repos/:owner/:repo/git/trees/:sha?recursive=1
+	//2. get content
+	// - GET /repos/:owner/:repo/contents/:path
+	//3. get url
+	// - GET  <url>
 	var p = new Promise(function(resolve, reject) {
 		var info = {
 			user : gitRepo.user,
@@ -73,13 +85,16 @@ router.get('/sync', function(req, res, next) {
 			recursive : true
 		};
 		github.gitdata.getTree(info, function(error, result) {
-			if (error)
+			if (error) {
+				log.error("Error when getting tree: %s", error);
 				reject(error);
-			else
+			} else {
+				log.debug("Got tree: %s", result);
 				resolve(result);
+			}
 		});
 	});
-
+	var finalResult = {};
 	var handleTree = function(result) {
 		var tree = result.tree;
 		var posts = [];
@@ -89,12 +104,16 @@ router.get('/sync', function(req, res, next) {
 				posts.push(item.path);
 			}
 		}
+		finalResult.all = posts.length;
+		log.debug("posts: %s", posts);
 		var q = async.queue(function(task, callback) {
+			log.debug("processing %s", task.path);
 			gitRepo.path = task.path;
 			github.repos.getContent(gitRepo, function(error, result) {
-				if (error)
+				if (error) {
+					log.error("Error when getting content %s: %s", gitRepo.path, error);
 					callback(error);
-				else {
+				} else {
 					var title = result.name;
 					var dotIndex = title.indexOf(".");
 					var type = "md";
@@ -106,7 +125,12 @@ router.get('/sync', function(req, res, next) {
 					var needUpdate = false;
 					if (post) {
 						needUpdate = post.sha !== result.sha ? true : false;
+						if (needUpdate)
+							finalResult.updated = finalResult.updated === undefined ? 1 : finalResult.updated + 1;
+						log.debug("post %s exists, need update? %s", title, needUpdate);
 					} else {
+						log.debug("post %s doesnot exist, about to create", title);
+						finalResult.created = finalResult.created === undefined ? 1 : finalResult.created + 1;
 						post = {
 							id : uuid.v4(),
 							source : "github",
@@ -126,12 +150,15 @@ router.get('/sync', function(req, res, next) {
 								post['abstract'] = abs.generate(body);
 								fetcher.save(post).then(function(post) {
 									delete post.content;
+									log.debug("Saved %s: %s", title, post);
 									callback(null, post);
 								}, function(err) {
+									log.error("Error when saving %s: %s", title, error);
 									callback(err);
 								});
 
 							} else {
+								log.error("Error when getting raw content %s: %s", title, error);
 								callback(error);
 							}
 						});
@@ -142,10 +169,12 @@ router.get('/sync', function(req, res, next) {
 			});
 		}, posts.length);
 		q.drain = function() {
-			res.json(rr);
+			log.debug("Result: %s", finalResult);
+			res.json(finalResult);
 		};
 		var rr = [];
 		for (var i = 0; i < posts.length; i++) {
+			log.debug("push %s to queue.", posts[i]);
 			q.push({
 				path : posts[i]
 			}, function(err, result) {
